@@ -525,6 +525,11 @@ class Statistics {
     return false;
   };
 
+  virtual bool getHistogramMap(std::map<std::string, HistogramData* const>*) const {
+      // Do nothing by default
+      return false;
+    };
+
   // Override this function to disable particular histogram collection
   virtual bool HistEnabledForType(uint32_t type) const {
     return type < HISTOGRAM_ENUM_MAX;

@@ -66,6 +66,7 @@ class StatisticsImpl : public Statistics {
   virtual Status Reset() override;
   virtual std::string ToString() const override;
   virtual bool getTickerMap(std::map<std::string, uint64_t>*) const override;
+  virtual bool getHistogramMap(std::map<std::string, HistogramData* const>*) const override;
   virtual bool HistEnabledForType(uint32_t type) const override;
 
  private:

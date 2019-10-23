@@ -399,6 +399,21 @@ bool StatisticsImpl::getTickerMap(
   return true;
 }
 
+bool StatisticsImpl::getHistogramMap(
+    std::map<std::string, HistogramData* const>* stats_map) const {
+  assert(stats_map);
+  if (!stats_map) return false;
+  stats_map->clear();
+  MutexLock lock(&aggregate_lock_);
+  for (const auto& t : HistogramsNameMap) {
+    assert(t.first < HISTOGRAM_ENUM_MAX);
+	HistogramData data;
+	histogramData(t.first, &data);
+	stats_map->insert({t.second.c_str(), &data});
+  }
+  return true;
+}
+
 bool StatisticsImpl::HistEnabledForType(uint32_t type) const {
   return type < HISTOGRAM_ENUM_MAX;
 }

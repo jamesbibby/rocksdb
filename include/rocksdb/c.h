@@ -125,6 +125,7 @@ typedef struct rocksdb_wal_iterator_t rocksdb_wal_iterator_t;
 typedef struct rocksdb_wal_readoptions_t rocksdb_wal_readoptions_t;
 typedef struct rocksdb_memory_consumers_t rocksdb_memory_consumers_t;
 typedef struct rocksdb_memory_usage_t rocksdb_memory_usage_t;
+typedef struct rocksdb_statistics_t rocksdb_statistics_t;
 
 /* DB operations */
 
@@ -1768,6 +1769,11 @@ rocksdb_approximate_memory_usage_get_mem_table_readers_total(
 extern ROCKSDB_LIBRARY_API uint64_t
 rocksdb_approximate_memory_usage_get_cache_total(
     rocksdb_memory_usage_t* memory_usage);
+
+extern ROCKSDB_LIBRARY_API rocksdb_statistics_t*
+rocksdb_statistics_create(rocksdb_options_t* opt);
+extern ROCKSDB_LIBRARY_API void rocksdb_statistics_destroy(
+    rocksdb_statistics_t* statistics);
 
 #ifdef __cplusplus
 }  /* end extern "C" */

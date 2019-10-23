@@ -114,6 +114,7 @@ using rocksdb::BatchResult;
 using rocksdb::PerfLevel;
 using rocksdb::PerfContext;
 using rocksdb::MemoryUtil;
+using rocksdb::HistogramData;
 
 using std::shared_ptr;
 using std::vector;
@@ -4390,6 +4391,64 @@ uint64_t rocksdb_approximate_memory_usage_get_cache_total(
 // deletes container with memory usage estimates
 void rocksdb_approximate_memory_usage_destroy(rocksdb_memory_usage_t* usage) {
   delete usage;
+}
+
+// contains runtime statistics
+struct rocksdb_statistics_t {
+  std::map<std::string, uint64_t>* tickers;
+  std::map<std::string, HistogramData* const>* histograms;
+};
+
+// runtime statistics
+rocksdb_statistics_t* rocksdb_statistics_create(
+      rocksdb_options_t* opt) {
+
+  auto result = new rocksdb_statistics_t;
+  rocksdb::Statistics *statistics = opt->rep.statistics.get();
+
+  if (statistics) {
+	  std::map<std::string, uint64_t> tickers;
+	  if (statistics->getTickerMap(&tickers)) {
+		  result->tickers = &tickers;
+	  }
+	  std::map<std::string, HistogramData* const> histograms;
+	  if (statistics->getHistogramMap(&histograms)) {
+		  result->histograms = &histograms;
+	  }
+  }
+
+  return result;
+}
+
+void rocksdb_statistics_get_tickers(
+    rocksdb_statistics_t* statistics,
+    size_t* len, char** keys, uint64_t* values) {
+
+	*len = statistics->tickers->size();
+
+	size_t i = 0;
+	for (std::map<std::string, uint64_t>::iterator it=statistics->tickers->begin(); it!=statistics->tickers->end(); ++it) {
+		keys[i] = strdup(it->first.c_str());
+		values[i] = it->second();
+		i++;
+	}
+}
+void rocksdb_statistics_get_historgrams(
+    rocksdb_statistics_t* statistics,
+    size_t* len, char** keys, double* averages) {
+
+	size_t i = 0;
+	for (std::map<std::string, HistogramData* const>::iterator it=statistics->histograms->begin(); it!=statistics->histograms->end(); ++it) {
+		keys[i] = strdup(it->first.c_str());
+		averages[i] = it->second->average;
+		i++;
+	}
+	*len = i;
+}
+
+// deletes container with statistics
+void rocksdb_statistics_destroy(rocksdb_statistics_t* statistics) {
+  delete statistics;
 }
 
 }  // end extern "C"
